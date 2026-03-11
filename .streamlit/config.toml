@@ -1,0 +1,62 @@
+[theme]
+# # Cor primária (botões, foco, destaques)
+# primaryColor = "#3f0655"
+
+# # Cor de fundo da área principal
+# backgroundColor = "#272025"
+
+# # Cor de fundo da barra lateral
+# secondaryBackgroundColor = "#1F1E23"
+
+
+# # Cor do texto padrão
+# textColor = "#E9E8EC"
+
+# # Fonte do texto (sans serif, serif, monospace)
+# font = "sans-serif"
+
+[client]
+# Define o nível de detalhe dos erros mostrados no navegador.
+# Opções: "full" (mostra stack trace), "type" (só o tipo do erro), "none" (esconde erros).
+showErrorDetails = "full"
+
+# Controla a visibilidade do menu de opções (canto superior direito).
+# "auto" (padrão), "developer", "viewer", ou "minimal".
+toolbarMode = "developer"
+
+# Oculta a navegação automática da sidebar se você estiver usando a pasta 'pages/'
+showSidebarNavigation = true
+
+[runner]
+# Se true, permite o uso de "Magic Commands" (escrever variáveis diretamente na linha).
+magicEnabled = true
+
+# Se true, lida com reruns de forma mais agressiva para maior responsividade.
+fastReruns = true
+
+# Impede que dados não serializáveis (que não podem ser convertidos em bytes) sejam salvos na Session State.
+# Útil para evitar erros estranhos em produção.
+enforceSerializableSessionState = false
+
+[server]
+# Porta onde o app será servido (padrão é 8501).
+port = 8501
+
+# Se true, o app roda sem tentar abrir o navegador automaticamente.
+headless = false
+
+# Permite servir arquivos estáticos (imagens, PDFs) de uma pasta 'static/' local.
+enableStaticServing = true
+
+# Proteção contra Cross-Site Request Forgery (segurança).
+enableXsrfProtection = true
+
+# Tamanho máximo de upload de arquivos (em MB). Padrão é 200MB.
+maxUploadSize = 200
+
+# [theme.sidebar]
+# backgroundColor = "#111111"
+# textColor = "#FFFFFF"
+
+[logger]
+level = "error"
