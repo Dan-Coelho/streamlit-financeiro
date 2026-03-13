@@ -47,7 +47,6 @@ def buscar_categorias():
     """Retorna a lista de categorias cadastradas."""
     try:
         response = conn.table("categorias").select("id, nome").execute()
-        logger.debug(f"Categorias encontradas: {response.data}")
         return response.data
     except Exception as e:
         st.error(f"Erro ao buscar categorias: {e}")
@@ -63,7 +62,6 @@ def buscar_subcategorias(categoria_id=None):
             query = query.eq("categoria_id", categoria_id)
 
         response = query.order("nome").execute()
-        logger.debug(f"Subcategorias encontradas: {response.data}")
         return response.data
     except Exception as e:
         st.error(f"Erro ao buscar subcategorias: {e}")
@@ -149,6 +147,7 @@ def excluir_transacao(id_transacao):
         return True
     except Exception as e:
         st.error(f"Erro ao excluir transação: {e}")
+        logger.error(f"Erro ao excluir transação: {e}")
         return False
 
 
@@ -172,4 +171,5 @@ def atualizar_transacao(
         return True
     except Exception as e:
         st.error(f"Erro ao atualizar transação: {e}")
+        logger.error(f"Erro ao atualizar transação: {e}")
         return False
