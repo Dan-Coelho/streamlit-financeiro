@@ -39,8 +39,6 @@ fastReruns = true
 enforceSerializableSessionState = false
 
 [server]
-# Porta onde o app será servido (padrão é 8501).
-port = 8501
 
 # Se true, o app roda sem tentar abrir o navegador automaticamente.
 headless = false
