@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import date
+from utils.logger import logger
 from utils.utils import (
     check_login,
     nova_transacao,
@@ -18,10 +19,13 @@ email_adm = st.secrets["email_adm"]
 # Verifica se o usuário NÃO está logado
 if not st.user.is_logged_in:
     check_login()
+    logger.info(f"Usuário {st.user.email} logado")
+
 
 if st.user.email not in emails_autorizados:
     st.error("Você não tem permissão para acessar estes dados.")
     st.button("Sair", on_click=st.logout)
+    logger.info(f"Usuário {st.user.email} não autorizado")
     st.stop()
 
 # Iniciar session_state

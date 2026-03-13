@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.database import carregar_transacoes, excluir_transacao
 from utils.utils import inject_global_css
+from utils.logger import logger
 
 inject_global_css()
 
@@ -14,7 +15,7 @@ def carregar_tabela_de_transações():
     df_display = df.copy()
     df_display["data"] = df_display.index.strftime("%d/%m/%Y")
     df_display["valor_formatado"] = df_display["valor"].apply(lambda x: f"R$ {x:,.2f}")
-
+    logger.debug(f"Tabela de transações carregada: {df_display.head()}")
     # Widget de edição/visualização
     # Usando o novo st.data_editor para permitir exclusão
     st.dataframe(
