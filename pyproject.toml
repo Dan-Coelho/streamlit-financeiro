@@ -12,6 +12,9 @@ dependencies = [
     "plotly>=5.18.0",
     "sqlalchemy>=2.0.48",
     "psycopg2-binary>=2.9.11",
+    "st-supabase-connection>=1.2.3",
+    "supabase>=2.13.0",
+    "colorama>=0.4.6",
 ]
 
 [dependency-groups]
