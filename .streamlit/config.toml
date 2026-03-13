@@ -40,9 +40,6 @@ enforceSerializableSessionState = false
 
 [server]
 
-# Se true, o app roda sem tentar abrir o navegador automaticamente.
-headless = false
-
 # Permite servir arquivos estáticos (imagens, PDFs) de uma pasta 'static/' local.
 enableStaticServing = true
 
