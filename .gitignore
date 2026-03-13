@@ -11,5 +11,6 @@ secrets.toml
 # Database
 *.db
 dados/*.db
+utils/migration.py
 # Virtual environments
 .venv
