@@ -6,7 +6,7 @@ from utils.database import carregar_transacoes
 from utils.utils import show_filtros, inject_global_css
 
 inject_global_css()
-
+st.set_page_config(layout="wide", initial_sidebar_state="auto")
 # st.title('Dashboard Financeiro')
 st.markdown(
     """

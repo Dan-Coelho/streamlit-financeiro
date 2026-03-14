@@ -61,7 +61,7 @@ with st.sidebar:
 # 2. Definição das páginas
 p1 = st.Page("dashboard.py", title="Painel Principal", icon="📊")
 p2 = st.Page(nova_transacao, title="Nova Transação", icon="➕")
-p3 = st.Page("config.py", title="Configurações", icon="⚙️")
+p3 = st.Page("config.py", title="Sobre a IPNova-Eusébio", icon="✝️")
 p4 = st.Page(nova_categoria, title="Nova Categoria", icon="➕")
 p5 = st.Page(nova_subcategoria, title="Nova Subcategoria", icon="➕")
 p6 = st.Page(deletar_transacao, title="Excluir Transação", icon="➖")
@@ -69,7 +69,7 @@ p7 = st.Page("tabela.py", title="Transações", icon="📋")
 
 
 # 3. Agrupando em seções no menu (usando um dicionário)
-rotas = {"Menu Principal": [p1], "Administração": []}
+rotas = {"Menu Principal": [p1], "Administração": [p3]}
 
 if st.user.email == email_adm:
     rotas["Menu Principal"] = [p1, p7, p2, p6]
