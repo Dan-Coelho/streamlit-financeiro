@@ -22,7 +22,7 @@ showErrorDetails = "full"
 
 # Controla a visibilidade do menu de opções (canto superior direito).
 # "auto" (padrão), "developer", "viewer", ou "minimal".
-toolbarMode = "developer"
+toolbarMode = "viewer"
 
 # Oculta a navegação automática da sidebar se você estiver usando a pasta 'pages/'
 showSidebarNavigation = true
