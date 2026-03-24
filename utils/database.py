@@ -57,7 +57,9 @@ def buscar_categorias():
 def buscar_subcategorias(categoria_id=None):
     """Retorna a lista de subcategorias, opcionalmente filtrada por categoria_id."""
     try:
-        query = conn.table("subcategorias").select("id, nome, categoria_id")
+        client = conn.client  # acessa o cliente supabase-py diretamente
+        query = client.table("subcategorias").select("id, nome, categoria_id")
+        #query = conn.table("subcategorias").select("id, nome, categoria_id")
         if categoria_id:
             query = query.eq("categoria_id", categoria_id)
 
@@ -107,6 +109,7 @@ def carregar_transacoes():
         )
 
         if not response.data:
+            logger.info("Nenhuma transação encontrada.")
             return pd.DataFrame()
 
         # Transformar os dados aninhados do Supabase em colunas planas para o DataFrame
