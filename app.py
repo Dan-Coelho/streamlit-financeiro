@@ -30,11 +30,16 @@ if st.user.email not in emails_autorizados:
 
 # Iniciar session_state
 defaults = {
-    "data_inicio": date(2025, 1, 1),
-    "data_fim": date.today(),
-    "subcategoria_selecionada": None,
-    "categoria_receita": None,
-    "categoria_despesa": None,
+    "dashboard_data_inicio": date(2025, 1, 1),
+    "orcamento_data_inicio": date(2025, 1, 1),
+    "dashboard_data_fim": date.today(),
+    "orcamento_data_fim": date.today(),
+    "dashboard_subcategoria_selecionada": None,
+    "orcamento_subcategoria_selecionada": None,
+    "dashboard_categoria_receita": None,
+    "orcamento_categoria_receita": None,
+    "dashboard_categoria_despesa": None,
+    "orcamento_categoria_despesa": None,
     # adicione outras chaves aqui
 }
 
@@ -66,13 +71,14 @@ p4 = st.Page(nova_categoria, title="Nova Categoria", icon="➕")
 p5 = st.Page(nova_subcategoria, title="Nova Subcategoria", icon="➕")
 p6 = st.Page(deletar_transacao, title="Excluir Transação", icon="➖")
 p7 = st.Page("tabela.py", title="Transações", icon="📋")
+p8 = st.Page("orcamento.py", title="Orçamento", icon="💵")
 
 
 # 3. Agrupando em seções no menu (usando um dicionário)
 rotas = {"Menu Principal": [p1], "Administração": [p3]}
 
 if st.user.email == email_adm:
-    rotas["Menu Principal"] = [p1, p7, p2, p6]
+    rotas["Menu Principal"] = [p1, p7, p8, p2, p6]
     rotas["Administração"] = [p3, p4, p5]
 
 

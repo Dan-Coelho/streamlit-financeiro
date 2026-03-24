@@ -11,7 +11,7 @@ from utils.database import (
     excluir_transacao,
     atualizar_transacao,
 )
-
+from utils.logger import logger
 
 def salvar_e_limpar(data, descricao, valor, recorrente, cat_id, sub_id):
     with st.container():
@@ -299,53 +299,64 @@ def nova_subcategoria():
                     st.write(f"- {s['nome']}")
 
 
-def show_filtros():
+def show_filtros(prefixo: str = ''):
     categorias = buscar_categorias()
+    IDS_RECEITA = [7, 8, 9, 10]   
+    IDS_DESPESA = [1, 2, 3, 4, 5, 6]  
+    categorias_receita = [c for c in categorias if c["id"] in IDS_RECEITA]
+    categorias_despesa = [c for c in categorias if c["id"] in IDS_DESPESA]
     subcategorias = buscar_subcategorias
 
     with st.expander("Filtros", width="stretch"):
         st.caption("Escolha um período")
         col1, col2 = st.columns(2)
         with col1:
-            st.date_input("Data inicial", key="data_inicio")
+            st.date_input("Data inicial", key=f"{prefixo}data_inicio")
         with col2:
-            st.date_input("Data final", key="data_fim")
+            st.date_input("Data final", key=f"{prefixo}data_fim")
         st.caption("Escolha uma categoria")
+        
         col3, col4, col5 = st.columns(3)
         with col3:
             categoria_receita = st.selectbox(
                 "Receita",
-                options=categorias[6:],
+                options=categorias_receita,
                 format_func=lambda x: x["nome"],
-                key="categoria_receita",
+                key=f"{prefixo}categoria_receita",
                 index=None,
             )
+        
         with col4:
             categoria_despesa = st.selectbox(
                 "Despesa",
-                options=categorias[:6],
+                options=categorias_despesa,
                 format_func=lambda x: x["nome"],
-                key="categoria_despesa",
+                key=f"{prefixo}categoria_despesa",
                 index=None,
             )
+        
         with col5:
+            cat_receita = st.session_state.get(f"{prefixo}categoria_receita")
+            cat_despesa = st.session_state.get(f"{prefixo}categoria_despesa")
             if categoria_receita:
                 st.selectbox(
                     "Subcategoria",
-                    options=subcategorias(categoria_receita["id"]),
+                    options=subcategorias(cat_receita['id']),
                     format_func=lambda x: x["nome"],
-                    key="subcategoria_selecionada",
+                    key=f"{prefixo}subcategoria_selecionada",
                     index=None,
                 )
-            if categoria_despesa:
+            elif categoria_despesa:
                 st.selectbox(
                     "Subcategoria",
-                    options=subcategorias(categoria_despesa["id"]),
+                    options=subcategorias(cat_despesa['id']),
                     format_func=lambda x: x["nome"],
-                    key="subcategoria_selecionada",
+                    key=f"{prefixo}subcategoria_selecionada",
                     index=None,
                 )
-
+            else:
+                # ✅ Garante que volta a None quando nenhuma categoria está selecionada
+                st.session_state[f"{prefixo}subcategoria_selecionada"] = None
 
 def inject_global_css():
     """Injects global CSS styles into the Streamlit app."""
@@ -542,3 +553,5 @@ def inject_global_css():
     </style>
     """
     st.markdown(css, unsafe_allow_html=True)
+
+

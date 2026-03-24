@@ -8,9 +8,16 @@ wheels/
 secrets.toml
 .pytest_cache
 .ruff_cache
+Untitled.ipynb
+.ipynb_checkpoints/
 # Database
 *.db
 dados/*.db
 utils/migration.py
+remigrar.py
+utils/db.py
+consulta.py
 # Virtual environments
 .venv
+# AI
+GEMINI.md
