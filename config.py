@@ -15,17 +15,17 @@ with st.container(border=True, horizontal_alignment="center"):
     col1, col2, col3 = st.columns(3)
     with col1:
         st.image(
-            "https://instagram.ffor50-1.fna.fbcdn.net/v/t51.82787-15/620834427_17982744911954937_5044246248611264876_n.webp?_nc_cat=104&ig_cache_key=MzgxNzkzMzA0NjIzNTEwNjY0Mw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjEwODB4MTA4MC5zZHIuQzMifQ%3D%3D&_nc_ohc=Z6HH0w3iqBQQ7kNvwEinuKq&_nc_oc=Adm5RQWcrFSLVX64qpqV7iziBj8SrgZju5DTQvtlvT4OCIzzszAUhK9Ctva4xJtZOKw&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffor50-1.fna&_nc_gid=Cdqh6Qh-sxd9Thgi5FD8SQ&_nc_ss=8&oh=00_AfwlIeufYVLCxyDoVHaGPYTpC0ntjgIsLCwLYCqoph35sg&oe=69BA7B52",
+            "static/cultoOracao.jpg",
             width=250,
         )
     with col2:
         st.image(
-            "https://instagram.ffor50-1.fna.fbcdn.net/v/t51.82787-15/634419847_17984611244954937_2728811754737899674_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ig_cache_key=MzgzMTAwNDg1ODc0MTI1Nzk1Ng%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjEwODB4MTM1MC5zZHIuQzMifQ%3D%3D&_nc_ohc=_RjGfR-jSeAQ7kNvwGQYYGB&_nc_oc=AdkMBoYiv_VSgGaSskhcgBPmHjBwUtgAgQAaIJTwZafiZVRNEkc1NtrAFp2EhjIqOWk&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffor50-1.fna&_nc_gid=Cdqh6Qh-sxd9Thgi5FD8SQ&_nc_ss=8&oh=00_Afy9E-ArVFJb1uF_ZA1V_cUMYJa_7gf2xNT8SilyQHB4pg&oe=69BA92B1",
+            "static/agenda.jpg",
             width=250,
         )
     with col3:
         st.image(
-            "https://instagram.ffor50-1.fna.fbcdn.net/v/t51.82787-15/649116391_17987498429954937_2571352060521956640_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ig_cache_key=Mzg0OTExNDgwMjgyNDc4NjM2OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjEzNTB4MTY4OC5zZHIuQzMifQ%3D%3D&_nc_ohc=XolifqnqD7sQ7kNvwF7okG-&_nc_oc=AdnqiMG7oWMS57U3NOrbI6EWjVlCHt5IXWB76itO2pZ15ksm1pWR27-o-d2XE-RmEmc&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.ffor50-1.fna&_nc_gid=oEZ7X-mDow_4wu-bmQ0E0g&_nc_ss=8&oh=00_AfwV_jAAQNQqdtQCTm3djmE4-0_RrWwakplr-UwneyqbrA&oe=69BA6E06",
+            "static/fraseipnj.jpg",
             width=250,
         )
 
