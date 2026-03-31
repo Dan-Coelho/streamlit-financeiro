@@ -59,7 +59,7 @@ def buscar_subcategorias(categoria_id=None):
     try:
         client = conn.client  # acessa o cliente supabase-py diretamente
         query = client.table("subcategorias").select("id, nome, categoria_id")
-        #query = conn.table("subcategorias").select("id, nome, categoria_id")
+        # query = conn.table("subcategorias").select("id, nome, categoria_id")
         if categoria_id:
             query = query.eq("categoria_id", categoria_id)
 
@@ -89,6 +89,7 @@ def adicionar_transacao(
             }
         ).execute()
         logger.info("Transação adicionada com sucesso!")
+        st.toast("Transação salva com sucesso!")
         return True
     except Exception as e:
         st.error(f"Erro ao adicionar transação: {e}")
