@@ -1,7 +1,11 @@
 import streamlit as st
 import pandas as pd
 from utils.database import carregar_transacoes
-from utils.metricas import carregar_metricas, carregar_graficos, carregar_outras_metricas
+from utils.metricas import (
+    carregar_metricas,
+    carregar_graficos,
+    carregar_outras_metricas,
+)
 from utils.utils import show_filtros, inject_global_css
 
 
@@ -34,7 +38,7 @@ st.markdown(
 )
 st.space("xsmall")
 
-show_filtros(prefixo='dashboard_')
+show_filtros(prefixo="dashboard_")
 
 st.space("xsmall")
 
@@ -50,6 +54,13 @@ st.html("""
 
 carregar_metricas()
 st.space("xsmall")
-carregar_outras_metricas(df_filtro, data_inicio, data_fim, categoria_receita, categoria_despesa, subcategoria_selecionada)
+carregar_outras_metricas(
+    df_filtro,
+    data_inicio,
+    data_fim,
+    categoria_receita,
+    categoria_despesa,
+    subcategoria_selecionada,
+)
 st.space("large")
 carregar_graficos()

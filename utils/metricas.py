@@ -20,14 +20,11 @@ ano_atual = date.today().year
 
 
 def carregar_metricas():
-    receitas = df[df["tipo"] == 'Receita']
-    despesas = df[df["tipo"] == 'Despesa']
-    receitas = receitas[
-        (receitas.index >= data_inicio) & (receitas.index <= data_fim)
-    ]
-    despesas = despesas[
-        (despesas.index >= data_inicio) & (despesas.index <= data_fim)
-    ]
+    receitas = df[df["tipo"] == "Receita"]
+    despesas = df[df["tipo"] == "Despesa"]
+    copia_despesas = despesas.copy()
+    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
+    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
     if df.empty:
         st.info("Nenhuma transação registrada ainda. Use a barra lateral para começar!")
     else:
@@ -60,20 +57,24 @@ def carregar_metricas():
             .replace("X", "."),
             border=True,
         )
-
+        # Cálculo das despesas recorrentes no mês anterior
         despesas_recorrentes = df[
             (df["valor"] < 0)
             & (df["recorrente"] == 1)
             & (df.index.month == mes_atual - 1)
             & (df.index.year == ano_atual)
         ]["valor"].sum()
+        # Cálculo da maior despesa do mês atual
         maior_despesa = df[
             (df["valor"] < 0)
             & (df.index.month == mes_atual)
             & (df.index.year == ano_atual)
         ]["valor"].min()
+        # Cálculo da média de despesas
+        despesas_mensais = copia_despesas.resample("ME")["valor"].sum()
+        media_mensal_despesas = abs(despesas_mensais.iloc[:-1]).mean()
 
-        m4, m5 = st.columns(2)
+        m4, m5, m6 = st.columns(3)
         m4.metric(
             "DESPESAS RECORRENTES DO MÊS ANTERIOR",
             f"R$ {despesas_recorrentes:,.2f}".replace(",", "X")
@@ -82,6 +83,13 @@ def carregar_metricas():
             delta_color="normal",
         )
         m5.metric(
+            "MÉDIA MENSAL DE DESPESAS",
+            f"R$ {media_mensal_despesas:,.2f}".replace(",", "X")
+            .replace(".", ",")
+            .replace("X", "."),
+            delta_color="normal",
+        )
+        m6.metric(
             "MAIOR DESPESA DO MÊS ATUAL",
             f"R$ {maior_despesa:,.2f}".replace(",", "X")
             .replace(".", ",")
@@ -90,17 +98,20 @@ def carregar_metricas():
         )
 
 
-def carregar_outras_metricas(df_filtro, data_inicio, data_fim, categoria_receita, categoria_despesa, subcategoria_selecionada=None):
-    receitas = df_filtro[df_filtro["tipo"] == 'Receita']
-    despesas = df_filtro[df_filtro["tipo"] == 'Despesa']
-    receitas = receitas[
-        (receitas.index >= data_inicio) & (receitas.index <= data_fim)
-    ]
-    despesas = despesas[
-        (despesas.index >= data_inicio) & (despesas.index <= data_fim)
-    ]
+def carregar_outras_metricas(
+    df_filtro,
+    data_inicio,
+    data_fim,
+    categoria_receita,
+    categoria_despesa,
+    subcategoria_selecionada=None,
+):
+    receitas = df_filtro[df_filtro["tipo"] == "Receita"]
+    despesas = df_filtro[df_filtro["tipo"] == "Despesa"]
+    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
+    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
     periodo = data_fim - data_inicio
-    
+
     if categoria_receita:
         st.markdown(
             """
@@ -217,16 +228,13 @@ def carregar_outras_metricas(df_filtro, data_inicio, data_fim, categoria_receita
                 delta_color="normal",
             )
 
+
 def carregar_graficos():
     receitas = df_filtro[df_filtro["valor"] > 0]
     despesas = df_filtro[df_filtro["valor"] < 0].copy()
     despesas["valor_abs"] = despesas["valor"].abs()
-    receitas = receitas[
-        (receitas.index >= data_inicio) & (receitas.index <= data_fim)
-    ]
-    despesas = despesas[
-        (despesas.index >= data_inicio) & (despesas.index <= data_fim)
-    ]
+    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
+    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
     despesas_agrupadas = (
         despesas.groupby("categoria")["valor"].sum().abs().reset_index()
     )
@@ -300,113 +308,150 @@ def carregar_graficos():
             st.info("Nenhuma receita encontrada.")
 
 
+def calcular_metricas_orcamento():
+    """
+    Calcula as métricas financeiras principais sem renderizar no Streamlit.
+    Retorna um dicionário com os valores calculados.
+    """
+    # df_metricas = carregar_transacoes()
+    if df.empty:
+        return None
+
+    receitas = df[df["tipo"] == "Receita"]
+    copia_receitas = receitas.copy()
+    despesas = df[df["tipo"] == "Despesa"]
+    copia_despesas = despesas.copy()
+
+    # 1. Cálculo da média mensal de despesas recorrentes
+    despesas_recorrentes = despesas[despesas["recorrente"] == 1]
+    despesas_recorrentes_por_mes = despesas_recorrentes.resample("ME")["valor"].sum()
+
+    # Pega a média dos meses anteriores (excluindo o atual se possível)
+    if len(despesas_recorrentes_por_mes) >= 2:
+        media_mensal_despesas_recorrentes = (
+            abs(despesas_recorrentes_por_mes).iloc[:-1].mean()
+        )
+    else:
+        media_mensal_despesas_recorrentes = abs(despesas_recorrentes_por_mes).mean()
+
+    # 2. Cálculo da média mensal de receitas
+    copia_receitas = copia_receitas.iloc[:-1]
+    rec_resampled = copia_receitas.resample("ME")["valor"].sum()
+    rec_media_mensal = rec_resampled.mean()
+
+    # 3. Cálculo da Margem de Segurança (mês atual)
+    receita_atual = rec_resampled.tail(1).iat[0] if not rec_resampled.empty else 0
+    margem_seguranca = (
+        ((receita_atual - abs(media_mensal_despesas_recorrentes)) / receita_atual) * 100
+        if receita_atual > 0
+        else 0
+    )
+
+    # 4. Cálculo do Cash Runway
+    receitas_total = receitas["valor"].sum()
+    despesas_total = copia_despesas["valor"].sum()
+    saldo = receitas_total + despesas_total
+
+    despesas_por_mes = copia_despesas.resample("ME")["valor"].sum()
+    if len(despesas_por_mes) >= 2:
+        media_mensal_despesas = abs(despesas_por_mes).iloc[-4:-1].mean()
+    else:
+        media_mensal_despesas = abs(despesas_por_mes).mean()
+
+    cash_runway = (
+        saldo / abs(media_mensal_despesas) if media_mensal_despesas != 0 else 0
+    )
+
+    return {
+        "media_mensal_despesas_recorrentes": media_mensal_despesas_recorrentes,
+        "rec_media_mensal": rec_media_mensal,
+        "margem_seguranca": margem_seguranca,
+        "cash_runway": cash_runway,
+        "saldo_atual": saldo,
+        "media mensal de despesas": media_mensal_despesas,
+    }
+
+
 def metricas_orcamento():
-        receitas = df[df['tipo'] == 'Receita']
-        copia_receitas = receitas.copy()
-        despesas = df[df['tipo'] == 'Despesa']
-        copia_despesas = despesas.copy()
-        
-        if df.empty:
-            st.info("Nenhuma transação registrada ainda. Use a barra lateral para começar!")
-        else:
-            # Métricas de Orçamento
-            
-            # 1. Cálculo da média mensal de despesas recorrentes
-            despesas = despesas[despesas['recorrente'] == 1]
-            despesas_recorrentes_por_mes = despesas.resample('ME')['valor'].sum()
-            media_mensal_despesas_recorrentes = abs(despesas_recorrentes_por_mes).iloc[-4:-1].mean()
-            # 2. Cálculo da média mensal de receitas
-            copia_receitas = copia_receitas.iloc[:-1]
-            copia_receitas = copia_receitas.resample('ME')
-            rec_media_mensal = copia_receitas['valor'].sum().mean()
-            # 3. Cálculo da Margem de Segurança (mês atual)
-            receita_atual = copia_receitas['valor'].sum().tail(1).iat[0]
-            margem_seguranca = ((receita_atual - abs(media_mensal_despesas_recorrentes)) / receita_atual) * 100
-            ms_reference = margem_seguranca - 10
-            # 4. Cálculo do Cash Runway
-            receitas_total = receitas["valor"].sum()
-            despesas_total = copia_despesas["valor"].sum()
-            saldo = receitas_total + despesas_total
-            despesas_por_mes = copia_despesas.resample('ME')['valor'].sum()
-            media_mensal_despesas = despesas_por_mes.iloc[-4:-1].mean()
-            cash_runway = saldo / abs(media_mensal_despesas)
-            cr_reference = cash_runway - 3
-            # receita_atual = rec['valor'].agg(['sum', 'count', 'mean'])
-            # fixo_atual = des['valor'].agg(['sum', 'count', 'mean'])
-            # margem_seguranca = (receita_atual['sum'] - fixo_atual['sum']) / receita_atual['sum']
-            # receita_media_6m = rec['valor'].rolling(window='180d').mean()
-            # st.write(receita_media_6m)
-            # receitas_total = receitas["valor"].sum()
-            # despesas_total = despesas["valor"].sum()
-            # saldo = receitas_total + despesas_total
-            # line = px.line(receita_media_6m, title="Receita Média")
-            # line.update_layout(
-            #     title="Título do Gráfico",
-            #     xaxis_title="Data",
-            #     yaxis_title="Valor (R$)",
-            #     showlegend=True,
-            #     height=400,
-            #     plot_bgcolor="rgba(0, 0, 0, 0)",
-            #     paper_bgcolor="rgba(0, 0, 0, 0)",
-            #     font=dict(size=12),
-            #     margin=dict(l=40, r=40, t=60, b=40),
-            # )
-            #st.plotly_chart(line, use_container_width=True)
-            m1, m2 = st.columns(2)
-            m1.metric(
-                ":orange[MÉDIA MENSAL DE DESPESAS RECORRENTES]",
-                value=f":red[R$ {media_mensal_despesas_recorrentes:,.2f}]".replace(",", "X")
-                .replace(".", ",")
-                .replace("X", "."),
-                delta_color="normal",
-                border=True,
-                help='Calcula a média de despesas recorrentes em determinado período'
-            )
-            m2.metric(
-                ":orange[MÉDIA MENSAL DE RECEITAS]",
-                value=f":green[R$ {rec_media_mensal:,.2f}]".replace(",", "X")
-                .replace(".", ",")
-                .replace("X", "."),
-                delta_color="normal",
-                border=True,
-                help='Calcula a média de receitas mensais em determinado período'
-            )
-            m3, m4 = st.columns(2)
-            m3.metric(
-                ":orange[MARGEM DE SEGURANÇA]",
-                value=f":green[{margem_seguranca:,.2f}%]".replace(",", "X")
-                .replace(".", ",")
-                .replace("X", ".") if margem_seguranca > 0 else f":red[{margem_seguranca:,.2f}%]".replace(",", "X")
-                .replace(".", ",")
-                .replace("X", "."),
-                delta=f'{ms_reference:,.2f}',
-                border=True,
-                help='Esta métrica indica o quanto a arrecadação da igreja pode cair antes que ela não consiga mais honrar seus compromissos fixos (salários pastorais, aluguel, energia, manutenção). Para uma igreja, o Ponto de Equilíbrio (Break-even) é o somatório exato das despesas fixas.'
-            )
-            m4.metric(
-                ":orange[CASH RUNWAY]",
-                value=f":green[R$ {cash_runway:,.2f}]".replace(",", "X")
-                .replace(".", ",")
-                .replace("X", "."),
-                delta=f'{cr_reference:,.2f}',
-                delta_color="normal",
-                border=True,
-                help='Ela calcula por quantos meses a igreja consegue manter suas atividades caso as receitas cessem completamente, utilizando apenas o fundo de reserva.'
-            )
+    data = calcular_metricas_orcamento()
+
+    if data is None:
+        st.info("Nenhuma transação registrada ainda. Use a barra lateral para começar!")
+        return
+
+    m1, m2 = st.columns(2)
+    m1.metric(
+        ":orange[MÉDIA MENSAL DE DESPESAS RECORRENTES]",
+        value=f":red[R$ {data['media_mensal_despesas_recorrentes']:,.2f}]".replace(
+            ",", "X"
+        )
+        .replace(".", ",")
+        .replace("X", "."),
+        border=True,
+        help="Calcula a média de despesas recorrentes em determinado período",
+    )
+    m2.metric(
+        ":orange[MÉDIA MENSAL DE RECEITAS]",
+        value=f":green[R$ {data['rec_media_mensal']:,.2f}]".replace(",", "X")
+        .replace(".", ",")
+        .replace("X", "."),
+        border=True,
+        help="Calcula a média de receitas mensais em determinado período",
+    )
+
+    ms_reference = data["margem_seguranca"] - 10
+    cr_reference = data["cash_runway"] - 3
+
+    m3, m4 = st.columns(2)
+    m3.metric(
+        ":orange[MARGEM DE SEGURANÇA]",
+        value=f"{data['margem_seguranca']:,.2f}%".replace(",", "X")
+        .replace(".", ",")
+        .replace("X", "."),
+        delta=f"{ms_reference:,.2f}",
+        border=True,
+        help="Esta métrica indica o quanto a arrecadação da igreja pode cair antes que ela não consiga mais honrar seus compromissos fixos.",
+    )
+    m4.metric(
+        ":orange[CASH RUNWAY]",
+        value=f"{data['cash_runway']:,.2f} meses".replace(",", "X")
+        .replace(".", ",")
+        .replace("X", "."),
+        delta=f"{cr_reference:,.2f}",
+        border=True,
+        help="Ela calcula por quantos meses a igreja consegue manter suas atividades caso as receitas cessem completamente.",
+    )
+
+
+def budget_metrics():
+    """
+    Retorna as métricas formatadas para o agente de IA.
+    """
+    data = calcular_metricas_orcamento()
+    if data is None:
+        return "Nenhum dado financeiro disponível no momento."
+
+    return f"""
+Aqui estão as métricas financeiras atuais da igreja:
+- Saldo Atual Total: R$ {data["saldo_atual"]:,.2f}
+- Média Mensal de Receitas: R$ {data["rec_media_mensal"]:,.2f}
+- Média Mensal de Despesas Recorrentes: R$ {data["media_mensal_despesas_recorrentes"]:,.2f}
+- Margem de Segurança: {data["margem_seguranca"]:,.2f}%
+- Cash Runway (Reserva Financeira): {data["cash_runway"]:,.2f} meses
+- Média Mensal de Despesas: {data["media mensal de despesas"]:,.2f}
+"""
+
 
 def grafico_mm_receitas():
-    receitas = df[df['tipo'] == 'Receita']
+    receitas = df[df["tipo"] == "Receita"]
     rec = receitas.copy().iloc[:-1]
     # receita_media_6m = receitas['valor'].rolling(window='180d').mean()
-    rec = rec.resample('d').sum()
+    rec = rec.resample("d").sum()
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=rec.index,
-        y=rec['valor'],
-        name='Receita',
-        marker_color='green'
-    ))
+    fig.add_trace(
+        go.Bar(x=rec.index, y=rec["valor"], name="Receita", marker_color="green")
+    )
     # fig.add_trace(go.Scatter(
     #     x=rec.index,
     #     y=receita_media_6m,
@@ -415,4 +460,3 @@ def grafico_mm_receitas():
     #     line=dict(color='red', width=3)
     # ))
     st.plotly_chart(fig)
-    
