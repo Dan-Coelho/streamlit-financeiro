@@ -13,6 +13,27 @@ from utils.utils import (
 
 inject_global_css()
 
+# Iniciar session_state
+defaults = {
+    "data_inicio": date(2025, 1, 1),
+    "orcamento_data_inicio": date(2025, 1, 1),
+    "data_fim": date.today(),
+    "orcamento_data_fim": date.today(),
+    "subcategoria_selecionada": None,
+    "orcamento_subcategoria_selecionada": None,
+    "categoria_receita": None,
+    "orcamento_categoria_receita": None,
+    "categoria_despesa": None,
+    "orcamento_categoria_despesa": None,
+    # adicione outras chaves aqui
+}
+
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+
+# Autorização
 emails_autorizados = st.secrets["emails_autorizados"]
 email_adm = st.secrets["email_adm"]
 
@@ -22,30 +43,13 @@ if not st.user.is_logged_in:
     logger.info(f"Usuário {st.user.email} logado")
 
 
+# Verifica autorização
 if st.user.email not in emails_autorizados:
     st.error("Você não tem permissão para acessar estes dados.")
     st.button("Sair", on_click=st.logout)
     logger.info(f"Usuário {st.user.email} não autorizado")
     st.stop()
 
-# Iniciar session_state
-defaults = {
-    "dashboard_data_inicio": date(2025, 1, 1),
-    "orcamento_data_inicio": date(2025, 1, 1),
-    "dashboard_data_fim": date.today(),
-    "orcamento_data_fim": date.today(),
-    "dashboard_subcategoria_selecionada": None,
-    "orcamento_subcategoria_selecionada": None,
-    "dashboard_categoria_receita": None,
-    "orcamento_categoria_receita": None,
-    "dashboard_categoria_despesa": None,
-    "orcamento_categoria_despesa": None,
-    # adicione outras chaves aqui
-}
-
-for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
 
 # Configuração da Página
 st.set_page_config(

@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import time
 from datetime import date
 from utils.database import (
@@ -223,7 +224,7 @@ def nova_transacao():
         on_click=salvar_e_limpar,
         args=(data, descricao, valor, recorrente, cat_id, sub_id),
     ):
-        logger.info("Salvando transação...")
+        logger.info(f"Salvando transação...{descricao}-{valor}")
 
 
 def nova_categoria():
@@ -300,7 +301,7 @@ def nova_subcategoria():
                     st.write(f"- {s['nome']}")
 
 
-def show_filtros(prefixo: str = ""):
+def show_filtros():
     categorias = buscar_categorias()
     IDS_RECEITA = [7, 8, 9, 10]
     IDS_DESPESA = [1, 2, 3, 4, 5, 6]
@@ -312,9 +313,9 @@ def show_filtros(prefixo: str = ""):
         st.caption("Escolha um período")
         col1, col2 = st.columns(2)
         with col1:
-            st.date_input("Data inicial", key=f"{prefixo}data_inicio")
+            st.date_input("Data inicial", key="data_inicio")
         with col2:
-            st.date_input("Data final", key=f"{prefixo}data_fim")
+            st.date_input("Data final", key="data_fim")
         st.caption("Escolha uma categoria")
 
         col3, col4, col5 = st.columns(3)
@@ -323,7 +324,7 @@ def show_filtros(prefixo: str = ""):
                 "Receita",
                 options=categorias_receita,
                 format_func=lambda x: x["nome"],
-                key=f"{prefixo}categoria_receita",
+                key="categoria_receita",
                 index=None,
             )
 
@@ -332,19 +333,19 @@ def show_filtros(prefixo: str = ""):
                 "Despesa",
                 options=categorias_despesa,
                 format_func=lambda x: x["nome"],
-                key=f"{prefixo}categoria_despesa",
+                key="categoria_despesa",
                 index=None,
             )
 
         with col5:
-            cat_receita = st.session_state.get(f"{prefixo}categoria_receita")
-            cat_despesa = st.session_state.get(f"{prefixo}categoria_despesa")
+            cat_receita = st.session_state.get("categoria_receita")
+            cat_despesa = st.session_state.get("categoria_despesa")
             if categoria_receita:
                 st.selectbox(
                     "Subcategoria",
                     options=subcategorias(cat_receita["id"]),
                     format_func=lambda x: x["nome"],
-                    key=f"{prefixo}subcategoria_selecionada",
+                    key="subcategoria_selecionada",
                     index=None,
                 )
             elif categoria_despesa:
@@ -352,12 +353,12 @@ def show_filtros(prefixo: str = ""):
                     "Subcategoria",
                     options=subcategorias(cat_despesa["id"]),
                     format_func=lambda x: x["nome"],
-                    key=f"{prefixo}subcategoria_selecionada",
+                    key="subcategoria_selecionada",
                     index=None,
                 )
             else:
                 # ✅ Garante que volta a None quando nenhuma categoria está selecionada
-                st.session_state[f"{prefixo}subcategoria_selecionada"] = None
+                st.session_state["subcategoria_selecionada"] = None
 
 
 def inject_global_css():
@@ -372,11 +373,11 @@ def inject_global_css():
             --color-bg-primary: #1F1FOF;
             --color-bg-secondary: #080E08;
             --color-bg-tertiary: #4B5030;
-            --color-accent-primary: #C7DE52;
-            --color-accent-secondary: #A6B763;
-            --color-accent-gradient: linear-gradient(135deg, #C7DE52 0%, #858C62 100%);
+            --color-accent-primary: #2060DF;
+            --color-accent-secondary: #06132D;
+            --color-accent-gradient: linear-gradient(135deg, #2060DF 0%, #A6BFF2 100%);
             --color-text-primary: #E6EDF3;
-            --color-text-secondary: #504D36;
+            --color-text-secondary: #a6b9f2;
             --color-border: #30363D;
             --color-success: #3FB950;
             --color-warning: #D29922;

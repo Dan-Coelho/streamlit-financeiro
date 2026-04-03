@@ -3,26 +3,27 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from utils.database import carregar_transacoes
 from utils.logger import logger
 
-df = carregar_transacoes()
-df_filtro = df.copy()
-categoria_receita = st.session_state.dashboard_categoria_receita
-categoria_despesa = st.session_state.dashboard_categoria_despesa
-subcategoria_selecionada = st.session_state.dashboard_subcategoria_selecionada
-data_inicio = st.session_state.dashboard_data_inicio
+
+categoria_receita = st.session_state.categoria_receita
+categoria_despesa = st.session_state.categoria_despesa
+subcategoria_selecionada = st.session_state.subcategoria_selecionada
+data_inicio = st.session_state.data_inicio
 data_inicio = pd.to_datetime(data_inicio)
-data_fim = st.session_state.dashboard_data_fim
+data_fim = st.session_state.data_fim
 data_fim = pd.to_datetime(data_fim)
 mes_atual = date.today().month
 ano_atual = date.today().year
 
 
-def carregar_metricas():
+def carregar_metricas(df):
     receitas = df[df["tipo"] == "Receita"]
     despesas = df[df["tipo"] == "Despesa"]
-    copia_despesas = despesas.copy()
+    data_inicio = st.session_state.data_inicio
+    data_inicio = pd.to_datetime(data_inicio)
+    data_fim = st.session_state.data_fim
+    data_fim = pd.to_datetime(data_fim)
     receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
     despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
     if df.empty:
@@ -30,12 +31,12 @@ def carregar_metricas():
     else:
         # Métricas Rápidas
         receitas_total = receitas["valor"].sum()
-        despesas_total = despesas["valor"].sum()
-        saldo = receitas_total + despesas_total
+        despesas_total = abs(despesas["valor"].sum())
+        saldo = receitas_total - despesas_total
 
         m1, m2, m3 = st.columns(3)
         m1.metric(
-            ":green[TOTAL DE RECEITAS]",
+            ":blue[TOTAL DE RECEITAS]",
             value=f":green[R$ {receitas_total:,.2f}]".replace(",", "X")
             .replace(".", ",")
             .replace("X", "."),
@@ -43,7 +44,7 @@ def carregar_metricas():
             border=True,
         )
         m2.metric(
-            ":red[TOTAL DE DESPESAS]",
+            ":blue[TOTAL DE DESPESAS]",
             value=f":red[R$ {despesas_total:,.2f}]".replace(",", "X")
             .replace(".", ",")
             .replace("X", "."),
@@ -51,66 +52,66 @@ def carregar_metricas():
             border=True,
         )
         m3.metric(
-            "SALDO ATUAL",
+            ":blue[SALDO ATUAL]",
             value=f"R$ {saldo:,.2f}".replace(",", "X")
             .replace(".", ",")
             .replace("X", "."),
             border=True,
         )
-        # Cálculo das despesas recorrentes no mês anterior
-        despesas_recorrentes = df[
-            (df["valor"] < 0)
-            & (df["recorrente"] == 1)
-            & (df.index.month == mes_atual - 1)
-            & (df.index.year == ano_atual)
-        ]["valor"].sum()
-        # Cálculo da maior despesa do mês atual
-        maior_despesa = df[
-            (df["valor"] < 0)
-            & (df.index.month == mes_atual)
-            & (df.index.year == ano_atual)
-        ]["valor"].min()
-        # Cálculo da média de despesas
-        despesas_mensais = copia_despesas.resample("ME")["valor"].sum()
-        media_mensal_despesas = abs(despesas_mensais.iloc[:-1]).mean()
-
-        m4, m5, m6 = st.columns(3)
-        m4.metric(
-            "DESPESAS RECORRENTES DO MÊS ANTERIOR",
-            f"R$ {despesas_recorrentes:,.2f}".replace(",", "X")
-            .replace(".", ",")
-            .replace("X", "."),
-            delta_color="normal",
-        )
-        m5.metric(
-            "MÉDIA MENSAL DE DESPESAS",
-            f"R$ {media_mensal_despesas:,.2f}".replace(",", "X")
-            .replace(".", ",")
-            .replace("X", "."),
-            delta_color="normal",
-        )
-        m6.metric(
-            "MAIOR DESPESA DO MÊS ATUAL",
-            f"R$ {maior_despesa:,.2f}".replace(",", "X")
-            .replace(".", ",")
-            .replace("X", "."),
-            delta_color="inverse",
-        )
 
 
-def carregar_outras_metricas(
-    df_filtro,
-    data_inicio,
-    data_fim,
-    categoria_receita,
-    categoria_despesa,
-    subcategoria_selecionada=None,
-):
-    receitas = df_filtro[df_filtro["tipo"] == "Receita"]
-    despesas = df_filtro[df_filtro["tipo"] == "Despesa"]
+def carregar_metricas_sem_filtro(df):
+    despesas = df[df["tipo"] == "Despesa"]
+    copia_despesas = despesas.copy()
+    # Cálculo das despesas recorrentes no mês anterior
+    despesas_recorrentes = copia_despesas[
+        (copia_despesas["recorrente"] == 1)
+        & (copia_despesas.index.month == mes_atual - 1)
+        & (copia_despesas.index.year == ano_atual)
+    ]["valor"].sum()
+    # Cálculo da maior despesa do mês atual
+    maior_despesa = copia_despesas[
+        (copia_despesas.index.month == mes_atual)
+        & (copia_despesas.index.year == ano_atual)
+    ]["valor"].min()
+    # Cálculo da média de despesas
+    despesas_mensais = copia_despesas.resample("ME")["valor"].sum()
+    media_mensal_despesas = abs(despesas_mensais.iloc[:-1]).mean()
+
+    m1, m2, m3 = st.columns(3)
+    m1.metric(
+        ":blue[DESPESAS RECORRENTES DO MÊS ANTERIOR]",
+        f":red[R$ {despesas_recorrentes:,.2f}]".replace(",", "X")
+        .replace(".", ",")
+        .replace("X", "."),
+        delta_color="normal",
+    )
+    m2.metric(
+        ":blue[MÉDIA MENSAL DE DESPESAS]",
+        f":red[R$ {media_mensal_despesas:,.2f}]".replace(",", "X")
+        .replace(".", ",")
+        .replace("X", "."),
+        delta_color="normal",
+    )
+    m3.metric(
+        ":blue[MAIOR DESPESA DO MÊS ATUAL]",
+        f":red[R$ {maior_despesa:,.2f}]".replace(",", "X")
+        .replace(".", ",")
+        .replace("X", "."),
+        delta_color="inverse",
+    )
+
+
+def carregar_outras_metricas(df):
+    receitas = df[df["tipo"] == "Receita"]
+    despesas = df[df["tipo"] == "Despesa"]
+    data_inicio = st.session_state.data_inicio
+    data_inicio = pd.to_datetime(data_inicio)
+    data_fim = st.session_state.data_fim
+    data_fim = pd.to_datetime(data_fim)
+    periodo = data_fim - data_inicio
     receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
     despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
-    periodo = data_fim - data_inicio
 
     if categoria_receita:
         st.markdown(
@@ -119,28 +120,31 @@ def carregar_outras_metricas(
         """,
             text_alignment="center",
         )
-        receitas = receitas[receitas["categoria"] == categoria_receita["nome"]]
-        if subcategoria_selecionada is not None:
+        receitas = receitas[
+            receitas["categoria"] == st.session_state.categoria_receita["nome"]
+        ]
+        if st.session_state.subcategoria_selecionada is not None:
             receitas = receitas[
-                receitas["subcategoria"] == subcategoria_selecionada["nome"]
+                receitas["subcategoria"]
+                == st.session_state.subcategoria_selecionada["nome"]
             ]
             m6, m7, m8 = st.columns(3)
             m6.metric(
-                f" Total de {subcategoria_selecionada['nome']}",
+                f" Total de :green[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
                 f"R$ {receitas['valor'].sum():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m7.metric(
-                f"Média de {subcategoria_selecionada['nome']}",
+                f"Média de :green[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
                 f"R$ {receitas['valor'].mean():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m8.metric(
-                f"Média diária de {subcategoria_selecionada['nome']}",
+                f"Média diária de :green[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
                 f"R$ {receitas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
@@ -149,56 +153,59 @@ def carregar_outras_metricas(
         else:
             m6, m7, m8 = st.columns(3)
             m6.metric(
-                f" Total de {categoria_receita['nome']}",
+                f" Total de :green[{st.session_state.categoria_receita['nome'].upper()}]",
                 f"R$ {receitas['valor'].sum():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m7.metric(
-                f"Média de {categoria_receita['nome']}",
+                f"Média de :green[{st.session_state.categoria_receita['nome'].upper()}]",
                 f"R$ {receitas['valor'].mean():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m8.metric(
-                f"Média diária de {categoria_receita['nome']}",
+                f"Média diária de :green[{st.session_state.categoria_receita['nome'].upper()}]",
                 f"R$ {receitas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
 
-    if categoria_despesa:
+    if st.session_state.categoria_despesa:
         st.markdown(
             """
             Métricas de :red[DESPESAS]
         """,
             text_alignment="center",
         )
-        despesas = despesas[despesas["categoria"] == categoria_despesa["nome"]]
-        if subcategoria_selecionada is not None:
+        despesas = despesas[
+            despesas["categoria"] == st.session_state.categoria_despesa["nome"]
+        ]
+        if st.session_state.subcategoria_selecionada is not None:
             despesas = despesas[
-                despesas["subcategoria"] == subcategoria_selecionada["nome"]
+                despesas["subcategoria"]
+                == st.session_state.subcategoria_selecionada["nome"]
             ]
             m8, m9, m10 = st.columns(3)
             m8.metric(
-                f" Total de {subcategoria_selecionada['nome']}",
+                f" Total de :red[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
                 f"R$ {despesas['valor'].sum():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m9.metric(
-                f"Média de {subcategoria_selecionada['nome']}",
+                f"Média de :red[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
                 f"R$ {despesas['valor'].mean():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m10.metric(
-                f"Média diária de {subcategoria_selecionada['nome']}",
+                f"Média diária de :red[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
                 f"R$ {despesas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
@@ -207,21 +214,21 @@ def carregar_outras_metricas(
         else:
             m8, m9, m10 = st.columns(3)
             m8.metric(
-                f" Total de {categoria_despesa['nome']}",
+                f" Total de :red[{st.session_state.categoria_despesa['nome'].upper()}]",
                 f"R$ {despesas['valor'].sum():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m9.metric(
-                f"Média de {categoria_despesa['nome']}",
+                f"Média de :red[{st.session_state.categoria_despesa['nome'].upper()}]",
                 f"R$ {despesas['valor'].mean():,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
             )
             m10.metric(
-                f"Média diária de {categoria_despesa['nome']}",
+                f"Média diária de :red[{st.session_state.categoria_despesa['nome'].upper()}]",
                 f"R$ {despesas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
@@ -229,10 +236,15 @@ def carregar_outras_metricas(
             )
 
 
-def carregar_graficos():
-    receitas = df_filtro[df_filtro["valor"] > 0]
-    despesas = df_filtro[df_filtro["valor"] < 0].copy()
+def carregar_graficos(df):
+    df_copy = df.copy()
+    receitas = df[df["valor"] > 0]
+    despesas = df[df["valor"] < 0].copy()
     despesas["valor_abs"] = despesas["valor"].abs()
+    data_inicio = st.session_state.data_inicio
+    data_inicio = pd.to_datetime(data_inicio)
+    data_fim = st.session_state.data_fim
+    data_fim = pd.to_datetime(data_fim)
     receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
     despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
     despesas_agrupadas = (
@@ -242,7 +254,8 @@ def carregar_graficos():
     periodo = data_fim - data_inicio
 
     # Gráfico de Saldo
-    saldo_diario = df_filtro.groupby(df_filtro.index)["valor"].sum()
+    df_copy = df_copy[(df_copy.index >= data_inicio) & (df_copy.index <= data_fim)]
+    saldo_diario = df_copy.groupby(df_copy.index)["valor"].sum()
     saldo_acumulado = saldo_diario.cumsum().reset_index()
     saldo_acumulado.columns = ["data", "saldo"]
     line = px.line(saldo_acumulado, x="data", y="saldo", title="Saldo Acumulado")
@@ -290,7 +303,11 @@ def carregar_graficos():
     with aba_grafico_despesas:
         if not despesas.empty:
             fi = px.pie(
-                despesas_agrupadas, names="categoria", values="valor", color="categoria"
+                despesas_agrupadas,
+                names="categoria",
+                values="valor",
+                color="categoria",
+                hover_data=["valor"],
             )
             fig = px.bar(
                 despesas_agrupadas, x="categoria", y="valor", color="categoria"
@@ -303,12 +320,12 @@ def carregar_graficos():
                 plot_bgcolor="rgba(0, 0, 0, 0)",
                 paper_bgcolor="rgba(0, 0, 0, 0)",
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fi, use_container_width=True)
         else:
             st.info("Nenhuma receita encontrada.")
 
 
-def calcular_metricas_orcamento():
+def calcular_metricas_orcamento(df):
     """
     Calcula as métricas financeiras principais sem renderizar no Streamlit.
     Retorna um dicionário com os valores calculados.
@@ -372,8 +389,8 @@ def calcular_metricas_orcamento():
     }
 
 
-def metricas_orcamento():
-    data = calcular_metricas_orcamento()
+def metricas_orcamento(df):
+    data = calcular_metricas_orcamento(df=df)
 
     if data is None:
         st.info("Nenhuma transação registrada ainda. Use a barra lateral para começar!")
@@ -381,7 +398,7 @@ def metricas_orcamento():
 
     m1, m2 = st.columns(2)
     m1.metric(
-        ":orange[MÉDIA MENSAL DE DESPESAS RECORRENTES]",
+        ":blue[MÉDIA MENSAL DE DESPESAS RECORRENTES]",
         value=f":red[R$ {data['media_mensal_despesas_recorrentes']:,.2f}]".replace(
             ",", "X"
         )
@@ -391,7 +408,7 @@ def metricas_orcamento():
         help="Calcula a média de despesas recorrentes em determinado período",
     )
     m2.metric(
-        ":orange[MÉDIA MENSAL DE RECEITAS]",
+        ":blue[MÉDIA MENSAL DE RECEITAS]",
         value=f":green[R$ {data['rec_media_mensal']:,.2f}]".replace(",", "X")
         .replace(".", ",")
         .replace("X", "."),
@@ -404,7 +421,7 @@ def metricas_orcamento():
 
     m3, m4 = st.columns(2)
     m3.metric(
-        ":orange[MARGEM DE SEGURANÇA]",
+        ":blue[MARGEM DE SEGURANÇA]",
         value=f"{data['margem_seguranca']:,.2f}%".replace(",", "X")
         .replace(".", ",")
         .replace("X", "."),
@@ -413,7 +430,7 @@ def metricas_orcamento():
         help="Esta métrica indica o quanto a arrecadação da igreja pode cair antes que ela não consiga mais honrar seus compromissos fixos.",
     )
     m4.metric(
-        ":orange[CASH RUNWAY]",
+        ":blue[CASH RUNWAY]",
         value=f"{data['cash_runway']:,.2f} meses".replace(",", "X")
         .replace(".", ",")
         .replace("X", "."),
@@ -442,7 +459,7 @@ Aqui estão as métricas financeiras atuais da igreja:
 """
 
 
-def grafico_mm_receitas():
+def grafico_mm_receitas(df):
     receitas = df[df["tipo"] == "Receita"]
     rec = receitas.copy().iloc[:-1]
     # receita_media_6m = receitas['valor'].rolling(window='180d').mean()
