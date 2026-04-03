@@ -97,6 +97,7 @@ def adicionar_transacao(
         return False
 
 
+@st.cache_data(ttl=60)
 def carregar_transacoes():
     """Carrega todas as transações com os nomes das categorias e subcategorias."""
     try:

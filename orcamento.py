@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from utils.logger import logger
 from utils.utils import inject_global_css
 from utils.metricas import metricas_orcamento, grafico_mm_receitas
@@ -9,17 +8,9 @@ from src.tools import ProjetoContext
 from langchain.messages import HumanMessage
 
 
-df = carregar_transacoes()
-df_filtro = df.copy()
-categoria_receita = st.session_state.orcamento_categoria_receita
-categoria_despesa = st.session_state.orcamento_categoria_despesa
-subcategoria_selecionada = st.session_state.orcamento_subcategoria_selecionada
-data_inicio = st.session_state.orcamento_data_inicio
-data_inicio = pd.to_datetime(data_inicio)
-data_fim = st.session_state.orcamento_data_fim
-data_fim = pd.to_datetime(data_fim)
-
 inject_global_css()
+
+df = carregar_transacoes()
 
 st.set_page_config(layout="wide", initial_sidebar_state="auto")
 
@@ -39,15 +30,14 @@ with st.container(horizontal_alignment="center", vertical_alignment="center"):
     )
     st.space("large")
 
-    # show_filtros(prefixo='orcamento_')
-    metricas_orcamento()
+    metricas_orcamento(df=df)
     st.space("medium")
     st.html("""
-                <h2 style='text-align: center; color: #080E08; background-color: #C7DE52; padding: 1rem; border-radius: 0.5rem;'>
+                <h2 style='text-align: center; color: #080E08; background-color: var(--color-accent-primary); padding: 1rem; border-radius: 0.5rem;'>
                     Gráfico de Receitas por dia
                 </h2>
             """)
-    grafico_mm_receitas()
+    grafico_mm_receitas(df=df)
 
 
 with st.expander("Agente de Orçamento"):
@@ -59,7 +49,7 @@ with st.expander("Agente de Orçamento"):
     config_memoria = {"configurable": {"thread_id": "conversa_teste_1"}}
 
     # Criamos o contexto do usuário atual (Lembra do ToolRuntime da aula passada?)
-    contexto_usuario = ProjetoContext(user_name="João", permissao_admin=True)
+    contexto_usuario = ProjetoContext(user_name=st.user.name, permissao_admin=True)
 
     # 2. Desenha todas as mensagens antigas na tela
     for msg in st.session_state.mensagens:
