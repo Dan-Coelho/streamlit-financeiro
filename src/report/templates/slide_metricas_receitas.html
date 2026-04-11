@@ -1,0 +1,23 @@
+{% extends "template.jinja" %}
+
+{% block title %}Receitas — Relatório Financeiro{% endblock %}
+
+{% block content %}
+<div class="accent-bar"></div>
+<header>
+    <h1>Receitas</h1>
+</header>
+<main>
+    <div class="grid-2">
+        <div>
+            <div class="metric-card">
+                <div class="metric-label">Média Mensal de Receitas</div>
+                <div class="metric-value positive">{{ media_mensal_receitas }}</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ fi_receitas }}" alt="Distribuição de Receitas por Categoria" />
+        </div>
+    </div>
+</main>
+{% endblock %}

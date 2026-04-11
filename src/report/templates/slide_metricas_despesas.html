@@ -1,0 +1,23 @@
+{% extends "template.jinja" %}
+
+{% block title %}Despesas — Relatório Financeiro{% endblock %}
+
+{% block content %}
+<div class="accent-bar"></div>
+<header>
+    <h1>Despesas</h1>
+</header>
+<main>
+    <div class="grid-2">
+        <div>
+            <div class="metric-card">
+                <div class="metric-label">Média Mensal de Despesas</div>
+                <div class="metric-value negative">{{ media_mensal_despesas }}</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ fi_despesas }}" alt="Distribuição de Despesas por Categoria" />
+        </div>
+    </div>
+</main>
+{% endblock %}

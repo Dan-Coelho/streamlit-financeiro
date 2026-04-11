@@ -1,0 +1,36 @@
+{% extends "template.jinja" %}
+
+{% block title %}Resultado — Relatório Financeiro{% endblock %}
+
+{% block content %}
+<div class="accent-bar"></div>
+<header>
+    <h1>Resultado Geral</h1>
+</header>
+<main>
+    <div class="grid-2">
+        <div class="metric-card" style="border-left-color: #00857a;">
+            <div class="metric-label">Total de Receitas</div>
+            <div class="metric-value positive">{{ total_receitas }}</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #c0392b;">
+            <div class="metric-label">Total de Despesas</div>
+            <div class="metric-value negative">{{ total_despesas }}</div>
+        </div>
+    </div>
+    <div class="metric-card" style="margin-top: 14px; border-left-color: #0984e3;">
+        <div class="metric-label">Saldo do Período</div>
+        <div class="metric-value">{{ saldo_atual }}</div>
+    </div>
+    <div class="grid-2" style="margin-top: 14px;">
+        <div class="metric-card" style="border-left-color: #00857a; margin-bottom: 0;">
+            <div class="metric-label">Média Mensal Receitas</div>
+            <div class="metric-value positive">{{ media_mensal_receitas }}</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #c0392b; margin-bottom: 0;">
+            <div class="metric-label">Média Mensal Despesas</div>
+            <div class="metric-value negative">{{ media_mensal_despesas }}</div>
+        </div>
+    </div>
+</main>
+{% endblock %}
