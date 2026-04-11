@@ -1,0 +1,20 @@
+{% extends "template.jinja" %}
+
+{% block title %}Capa — Relatório Financeiro{% endblock %}
+
+{% block slide_class %}cover{% endblock %}
+
+{% block content %}
+  <div class="logo-container">
+      {% if logo_b64 %}
+      <img src="data:image/jpeg;base64,{{ logo_b64 }}" alt="Logo">
+      {% endif %}
+  </div>
+  <h1>Financeiro IPNova Eusébio</h1>
+  <h2>Apresentação de contas</h2>
+  <div style="margin-top: 40px; font-size: 13pt; color: #636e72;">
+      2025 | 1º quadrimestre 2026
+  </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

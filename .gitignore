@@ -21,3 +21,5 @@ consulta.py
 .venv
 # AI
 GEMINI.md
+# Arquivos .pdf
+*.pdf

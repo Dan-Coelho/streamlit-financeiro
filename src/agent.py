@@ -74,30 +74,3 @@ agent = create_agent(
     system_prompt=system_prompt,
 )
 
-# ==========================================
-# 5. BLOCO DE EXECUÇÃO (Para testar no terminal)
-# ==========================================
-# if __name__ == "__main__":
-#     print("🤖 Iniciando o Agente... (Digite 'sair' para encerrar)")
-
-#     # Para a memória funcionar, precisamos de um "ID de conversa" (thread_id)
-#     config_memoria = {"configurable": {"thread_id": "conversa_teste_1"}}
-
-#     # Criamos o contexto do usuário atual (Lembra do ToolRuntime da aula passada?)
-#     contexto_usuario = ProjetoContext(user_name="João", permissao_admin=True)
-
-#     while True:
-#         pergunta = input("\nVocê: ")
-#         if pergunta.lower() == 'sair':
-#             break
-
-#         # Invocamos o agente passando a pergunta, a configuração de memória e o contexto
-#         resultado = agent.invoke(
-#             {"messages": [HumanMessage(content=pergunta)]},
-#             config=config_memoria,
-#             context=contexto_usuario
-#         )
-
-#         # A resposta final do agente sempre estará na última mensagem da lista
-#         resposta_final = resultado["messages"][-1].content
-#         print(f"\nAssistente: {resposta_final}")
