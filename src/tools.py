@@ -1,7 +1,6 @@
-from langchain.tools import tool, ToolRuntime
+from langchain.tools import tool
 from dataclasses import dataclass
-from langgraph.types import Command
-from langchain.messages import ToolMessage
+from utils.database import carregar_transacoes
 from utils.metricas import budget_metrics
 
 
@@ -23,7 +22,7 @@ def display_budget_metrics():
     Returns:
         str: Um resumo textual das métricas financeiras para o agente analisar.
     """
-    return budget_metrics()
+    return budget_metrics(df=carregar_transacoes())
 
 
 # ==========================================

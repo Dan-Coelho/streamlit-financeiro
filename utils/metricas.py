@@ -1,10 +1,9 @@
 from datetime import date
-import streamlit as st
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from utils.logger import logger
-
+import streamlit as st
 
 categoria_receita = st.session_state.categoria_receita
 categoria_despesa = st.session_state.categoria_despesa
@@ -250,9 +249,6 @@ def carregar_graficos(df):
     despesas_agrupadas = (
         despesas.groupby("categoria")["valor"].sum().abs().reset_index()
     )
-    receitas_agrupadas = receitas.groupby("categoria")["valor"].sum().reset_index()
-    periodo = data_fim - data_inicio
-
     # Gráfico de Saldo
     df_copy = df_copy[(df_copy.index >= data_inicio) & (df_copy.index <= data_fim)]
     saldo_diario = df_copy.groupby(df_copy.index)["valor"].sum()
@@ -440,11 +436,11 @@ def metricas_orcamento(df):
     )
 
 
-def budget_metrics():
+def budget_metrics(df):
     """
     Retorna as métricas formatadas para o agente de IA.
     """
-    data = calcular_metricas_orcamento()
+    data = calcular_metricas_orcamento(df=df)
     if data is None:
         return "Nenhum dado financeiro disponível no momento."
 
