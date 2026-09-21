@@ -2,6 +2,7 @@ from streamlit.testing.v1 import AppTest
 
 
 def test_clique_no_botao():
+    """Verifica o comportamento esperado do teste legado do aplicativo de exemplo."""
     # 1. Carrega e roda o app inicial
     at = AppTest.from_file("app.py").run()
 

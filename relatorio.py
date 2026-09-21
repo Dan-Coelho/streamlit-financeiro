@@ -185,9 +185,11 @@ def texto_para_html(texto: str) -> str:
     em_lista = False
 
     def _negrito(s: str) -> str:
+        """Converte trechos delimitados por asteriscos em elementos HTML fortes."""
         return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
 
     def _fechar_lista():
+        """Fecha a lista HTML atual quando o parser está dentro de uma lista."""
         if em_lista:
             resultado.append("</ul>")
 
@@ -257,14 +259,13 @@ def _fig_to_b64(fig) -> str:
 
 
 def gerar_dados_gerais(dataframe):
-  
+  """Prepara métricas e gráficos agregados para os slides do relatório financeiro."""
   receitas = df[df["tipo"] == "Receita"]
   despesas = df[df["tipo"] == "Despesa"]
   data_inicio = date(2025, 1, 1)
   data_inicio = pd.to_datetime(data_inicio)
   data_fim = date(2026, 3, 31)
   data_fim = pd.to_datetime(data_fim)
-  periodo = data_fim - data_inicio
   logger.info(f"Gerando dados para relatório: {data_inicio} → {data_fim}")
   receitas = receitas.iloc[:-1]
   receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]

@@ -18,7 +18,7 @@ except Exception as e:
 
 
 def adicionar_categoria(nome):
-    """Adiciona uma nova categoria ao banco de dados Supabase."""
+    """Insere uma nova categoria no Supabase e retorna se a operação foi concluída."""
     try:
         conn.table("categorias").insert({"nome": nome}).execute()
         logger.info(f"Categoria '{nome}' adicionada com sucesso!")
@@ -30,7 +30,7 @@ def adicionar_categoria(nome):
 
 
 def adicionar_subcategoria(nome, categoria_id):
-    """Adiciona uma nova subcategoria vinculada a uma categoria no Supabase."""
+    """Insere uma subcategoria vinculada à categoria informada no Supabase."""
     try:
         conn.table("subcategorias").insert(
             {"nome": nome, "categoria_id": categoria_id}
@@ -44,7 +44,7 @@ def adicionar_subcategoria(nome, categoria_id):
 
 
 def buscar_categorias():
-    """Retorna a lista de categorias cadastradas."""
+    """Consulta e retorna as categorias cadastradas no Supabase."""
     try:
         response = conn.table("categorias").select("id, nome").execute()
         return response.data
@@ -55,7 +55,7 @@ def buscar_categorias():
 
 
 def buscar_subcategorias(categoria_id=None):
-    """Retorna a lista de subcategorias, opcionalmente filtrada por categoria_id."""
+    """Consulta subcategorias ordenadas, opcionalmente filtradas por categoria pai."""
     try:
         client = conn.client  # acessa o cliente supabase-py diretamente
         query = client.table("subcategorias").select("id, nome, categoria_id")
@@ -74,7 +74,7 @@ def buscar_subcategorias(categoria_id=None):
 def adicionar_transacao(
     data, descricao, valor, recorrente, categoria_id, subcategoria_id
 ):
-    """Adiciona uma nova transação ao banco de dados Supabase."""
+    """Insere uma transação no Supabase e deriva o tipo pelo sinal do valor."""
     tipo = "Receita" if valor > 0 else "Despesa"
     try:
         conn.table("transacoes").insert(
@@ -99,7 +99,7 @@ def adicionar_transacao(
 
 @st.cache_data(ttl=60)
 def carregar_transacoes():
-    """Carrega todas as transações com os nomes das categorias e subcategorias."""
+    """Carrega transações relacionadas e devolve um DataFrame indexado pela data."""
     try:
         # No Supabase, fazemos o join via select() especificando as relações
         query = (
@@ -146,7 +146,7 @@ def carregar_transacoes():
 
 
 def excluir_transacao(id_transacao):
-    """Exclui uma transação pelo ID no Supabase."""
+    """Exclui do Supabase a transação identificada pelo ID informado."""
     try:
         conn.table("transacoes").delete().eq("id", id_transacao).execute()
         return True
@@ -159,7 +159,7 @@ def excluir_transacao(id_transacao):
 def atualizar_transacao(
     id_transacao, data, descricao, valor, recorrente, categoria_id, subcategoria_id
 ):
-    """Atualiza uma transação existente no Supabase."""
+    """Atualiza os dados de uma transação existente e recalcula seu tipo."""
     tipo = "Receita" if valor > 0 else "Despesa"
     try:
         conn.table("transacoes").update(

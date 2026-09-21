@@ -1,5 +1,4 @@
 import streamlit as st
-from utils.logger import logger
 from utils.utils import inject_global_css
 from utils.metricas import metricas_orcamento, grafico_mm_receitas
 from utils.database import carregar_transacoes

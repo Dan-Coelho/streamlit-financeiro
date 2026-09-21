@@ -8,6 +8,8 @@ from utils.metricas import budget_metrics
 # Isso pode conter o nome do usuário, permissões, etc.
 @dataclass
 class ProjetoContext:
+    """Representa o contexto do usuário disponibilizado ao agente de IA."""
+
     user_name: str
     permissao_admin: bool
 

@@ -15,6 +15,7 @@ class ColorFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        """Adiciona a cor correspondente ao nível e formata o registro de log."""
         log_color = self.COLORS.get(record.levelno, "")
         message = super().format(record)
         return log_color + message + Style.RESET_ALL

@@ -5,11 +5,6 @@ from utils.metricas import (
     carregar_graficos,
     carregar_outras_metricas,
     carregar_metricas_sem_filtro,
-    data_inicio,
-    data_fim,
-    categoria_receita,
-    categoria_despesa,
-    subcategoria_selecionada,
 )
 from utils.utils import show_filtros, inject_global_css
 

@@ -17,14 +17,15 @@ ano_atual = date.today().year
 
 
 def carregar_metricas(df):
+    """Calcula e renderiza receitas, despesas e saldo no período selecionado."""
     receitas = df[df["tipo"] == "Receita"]
     despesas = df[df["tipo"] == "Despesa"]
     data_inicio = st.session_state.data_inicio
-    data_inicio = pd.to_datetime(data_inicio)
+    data_inicio = pd.Timestamp(data_inicio)
     data_fim = st.session_state.data_fim
-    data_fim = pd.to_datetime(data_fim)
-    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
-    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
+    data_fim = pd.Timestamp(data_fim) + pd.Timedelta(days=1)
+    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index < data_fim)]
+    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index < data_fim)]
     if df.empty:
         st.info("Nenhuma transação registrada ainda. Use a barra lateral para começar!")
     else:
@@ -60,6 +61,7 @@ def carregar_metricas(df):
 
 
 def carregar_metricas_sem_filtro(df):
+    """Calcula e renderiza indicadores gerais de despesas sem aplicar os filtros do painel."""
     despesas = df[df["tipo"] == "Despesa"]
     copia_despesas = despesas.copy()
     # Cálculo das despesas recorrentes no mês anterior
@@ -102,15 +104,16 @@ def carregar_metricas_sem_filtro(df):
 
 
 def carregar_outras_metricas(df):
+    """Calcula e renderiza métricas detalhadas de categoria e subcategoria selecionadas."""
     receitas = df[df["tipo"] == "Receita"]
     despesas = df[df["tipo"] == "Despesa"]
     data_inicio = st.session_state.data_inicio
-    data_inicio = pd.to_datetime(data_inicio)
+    data_inicio = pd.Timestamp(data_inicio)
     data_fim = st.session_state.data_fim
-    data_fim = pd.to_datetime(data_fim)
+    data_fim = pd.Timestamp(data_fim) + pd.Timedelta(days=1)
     periodo = data_fim - data_inicio
-    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
-    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
+    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index < data_fim)]
+    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index < data_fim)]
 
     if categoria_receita:
         st.markdown(
@@ -236,16 +239,17 @@ def carregar_outras_metricas(df):
 
 
 def carregar_graficos(df):
+    """Cria e renderiza gráficos de saldo acumulado, receitas e despesas por categoria."""
     df_copy = df.copy()
     receitas = df[df["valor"] > 0]
     despesas = df[df["valor"] < 0].copy()
     despesas["valor_abs"] = despesas["valor"].abs()
     data_inicio = st.session_state.data_inicio
-    data_inicio = pd.to_datetime(data_inicio)
+    data_inicio = pd.Timestamp(data_inicio)
     data_fim = st.session_state.data_fim
-    data_fim = pd.to_datetime(data_fim)
-    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index <= data_fim)]
-    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index <= data_fim)]
+    data_fim = pd.Timestamp(data_fim)
+    receitas = receitas[(receitas.index >= data_inicio) & (receitas.index < data_fim)]
+    despesas = despesas[(despesas.index >= data_inicio) & (despesas.index < data_fim)]
     despesas_agrupadas = (
         despesas.groupby("categoria")["valor"].sum().abs().reset_index()
     )
@@ -386,6 +390,7 @@ def calcular_metricas_orcamento(df):
 
 
 def metricas_orcamento(df):
+    """Renderiza os indicadores de orçamento calculados para o DataFrame informado."""
     data = calcular_metricas_orcamento(df=df)
 
     if data is None:
@@ -456,6 +461,7 @@ Aqui estão as métricas financeiras atuais da igreja:
 
 
 def grafico_mm_receitas(df):
+    """Renderiza um gráfico diário das receitas agregadas do DataFrame."""
     receitas = df[df["tipo"] == "Receita"]
     rec = receitas.copy().iloc[:-1]
     # receita_media_6m = receitas['valor'].rolling(window='180d').mean()

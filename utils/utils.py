@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import time
 from datetime import date
 from utils.database import (
@@ -16,6 +15,7 @@ from utils.logger import logger
 
 
 def salvar_e_limpar(data, descricao, valor, recorrente, cat_id, sub_id):
+    """Valida e salva uma transação, limpando os campos do formulário após sucesso."""
     with st.container():
         if not descricao or not cat_id:
             aviso = st.empty()
@@ -29,6 +29,7 @@ def salvar_e_limpar(data, descricao, valor, recorrente, cat_id, sub_id):
 
 
 def excluir_e_avisar(id_transacao):
+    """Exclui uma transação e informa o resultado ao usuário com um toast."""
     excluir_transacao(id_transacao)
     st.toast(f"Transação {id_transacao} excluída com sucesso!")
     # O rerun acontece automaticamente ao interagir com o botão se não houver prevent default,
@@ -36,6 +37,7 @@ def excluir_e_avisar(id_transacao):
 
 
 def editar_transacao():
+    """Renderiza o formulário para selecionar e atualizar uma transação existente."""
     st.header("📝 Editar Transação")
     df = carregar_transacoes()
 
@@ -131,6 +133,7 @@ def editar_transacao():
 
 
 def deletar_transacao():
+    """Renderiza a tela de confirmação e exclusão de uma transação."""
     st.header("🗑️ Excluir Transação")
     df = carregar_transacoes()
 
@@ -166,6 +169,7 @@ def deletar_transacao():
 
 
 def check_login():
+    """Exibe a tela de login e interrompe a execução até a autenticação do usuário."""
     with st.container(horizontal_alignment="center"):
         st.title("Dashboard Financeiro da IPNJ-Eusébio", text_alignment="center")
         st.divider()
@@ -175,6 +179,7 @@ def check_login():
 
 
 def nova_transacao():
+    """Renderiza o formulário de cadastro de receita ou despesa."""
     st.header("➕ Nova Transação")
 
     # Removemos o st.form para permitir que a página recarregue ao mudar a categoria
@@ -228,6 +233,7 @@ def nova_transacao():
 
 
 def nova_categoria():
+    """Renderiza o formulário de cadastro e a lista de categorias existentes."""
     st.header("➕ Gerenciar Categorias")
 
     with st.form("form_categoria", clear_on_submit=True):
@@ -258,6 +264,7 @@ def nova_categoria():
 
 
 def nova_subcategoria():
+    """Renderiza o formulário de cadastro e a listagem de subcategorias por categoria."""
     st.header("➕ Gerenciar Subcategorias")
 
     categorias = buscar_categorias()
@@ -302,6 +309,7 @@ def nova_subcategoria():
 
 
 def show_filtros():
+    """Renderiza os filtros de período, categoria e subcategoria do dashboard."""
     categorias = buscar_categorias()
     IDS_RECEITA = [7, 8, 9, 10]
     IDS_DESPESA = [1, 2, 3, 4, 5, 6]

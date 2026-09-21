@@ -1,8 +1,6 @@
 import streamlit as st
-import pandas as pd
-from utils.database import carregar_transacoes, excluir_transacao
+from utils.database import carregar_transacoes
 from utils.utils import inject_global_css
-from utils.logger import logger
 
 inject_global_css()
 
@@ -11,6 +9,7 @@ st.space("large")
 
 
 def carregar_tabela_de_transações():
+    """Carrega as transações e renderiza uma tabela formatada no Streamlit."""
     df = carregar_transacoes()
     # Formatação para exibição
     df_display = df.copy()

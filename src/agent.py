@@ -2,7 +2,6 @@ import streamlit as st
 from langchain.chat_models import init_chat_model
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
-from langchain.messages import HumanMessage
 
 # Importamos as ferramentas e o contexto que criamos na Aula 1
 from src.tools import display_budget_metrics, ProjetoContext
