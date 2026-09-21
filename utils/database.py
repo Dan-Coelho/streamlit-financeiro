@@ -89,6 +89,7 @@ def adicionar_transacao(
             }
         ).execute()
         logger.info("Transação adicionada com sucesso!")
+        carregar_transacoes.clear()
         st.toast("Transação salva com sucesso!")
         return True
     except Exception as e:
@@ -145,10 +146,16 @@ def carregar_transacoes():
         return pd.DataFrame()
 
 
+def limpar_cache_transacoes():
+    """Remove o cache das transações para forçar uma nova consulta ao Supabase."""
+    carregar_transacoes.clear()
+
+
 def excluir_transacao(id_transacao):
     """Exclui do Supabase a transação identificada pelo ID informado."""
     try:
         conn.table("transacoes").delete().eq("id", id_transacao).execute()
+        limpar_cache_transacoes()
         return True
     except Exception as e:
         st.error(f"Erro ao excluir transação: {e}")
@@ -173,6 +180,7 @@ def atualizar_transacao(
                 "tipo": tipo,
             }
         ).eq("id", id_transacao).execute()
+        limpar_cache_transacoes()
         return True
     except Exception as e:
         st.error(f"Erro ao atualizar transação: {e}")

@@ -16,6 +16,14 @@ mes_atual = date.today().month
 ano_atual = date.today().year
 
 
+def _dias_no_periodo(data_inicio, data_fim):
+    """Retorna a quantidade inclusiva de dias entre duas datas selecionadas."""
+    dias = (pd.Timestamp(data_fim) - pd.Timestamp(data_inicio)).days + 1
+    if dias <= 0:
+        raise ValueError("A data final deve ser igual ou posterior à data inicial.")
+    return dias
+
+
 def carregar_metricas(df):
     """Calcula e renderiza receitas, despesas e saldo no período selecionado."""
     receitas = df[df["tipo"] == "Receita"]
@@ -109,9 +117,9 @@ def carregar_outras_metricas(df):
     despesas = df[df["tipo"] == "Despesa"]
     data_inicio = st.session_state.data_inicio
     data_inicio = pd.Timestamp(data_inicio)
-    data_fim = st.session_state.data_fim
-    data_fim = pd.Timestamp(data_fim) + pd.Timedelta(days=1)
-    periodo = data_fim - data_inicio
+    data_fim_selecionada = pd.Timestamp(st.session_state.data_fim)
+    data_fim = data_fim_selecionada + pd.Timedelta(days=1)
+    dias_periodo = _dias_no_periodo(data_inicio, data_fim_selecionada)
     receitas = receitas[(receitas.index >= data_inicio) & (receitas.index < data_fim)]
     despesas = despesas[(despesas.index >= data_inicio) & (despesas.index < data_fim)]
 
@@ -147,7 +155,7 @@ def carregar_outras_metricas(df):
             )
             m8.metric(
                 f"Média diária de :green[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
-                f"R$ {receitas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
+                f"R$ {receitas['valor'].sum() / dias_periodo:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
@@ -170,7 +178,7 @@ def carregar_outras_metricas(df):
             )
             m8.metric(
                 f"Média diária de :green[{st.session_state.categoria_receita['nome'].upper()}]",
-                f"R$ {receitas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
+                f"R$ {receitas['valor'].sum() / dias_periodo:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
@@ -208,7 +216,7 @@ def carregar_outras_metricas(df):
             )
             m10.metric(
                 f"Média diária de :red[{st.session_state.subcategoria_selecionada['nome'].upper()}]",
-                f"R$ {despesas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
+                f"R$ {despesas['valor'].sum() / dias_periodo:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
@@ -231,7 +239,7 @@ def carregar_outras_metricas(df):
             )
             m10.metric(
                 f"Média diária de :red[{st.session_state.categoria_despesa['nome'].upper()}]",
-                f"R$ {despesas['valor'].sum() / periodo.days:,.2f}".replace(",", "X")
+                f"R$ {despesas['valor'].sum() / dias_periodo:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
                 delta_color="normal",
@@ -246,15 +254,14 @@ def carregar_graficos(df):
     despesas["valor_abs"] = despesas["valor"].abs()
     data_inicio = st.session_state.data_inicio
     data_inicio = pd.Timestamp(data_inicio)
-    data_fim = st.session_state.data_fim
-    data_fim = pd.Timestamp(data_fim)
+    data_fim = pd.Timestamp(st.session_state.data_fim) + pd.Timedelta(days=1)
     receitas = receitas[(receitas.index >= data_inicio) & (receitas.index < data_fim)]
     despesas = despesas[(despesas.index >= data_inicio) & (despesas.index < data_fim)]
     despesas_agrupadas = (
         despesas.groupby("categoria")["valor"].sum().abs().reset_index()
     )
     # Gráfico de Saldo
-    df_copy = df_copy[(df_copy.index >= data_inicio) & (df_copy.index <= data_fim)]
+    df_copy = df_copy[(df_copy.index >= data_inicio) & (df_copy.index < data_fim)]
     saldo_diario = df_copy.groupby(df_copy.index)["valor"].sum()
     saldo_acumulado = saldo_diario.cumsum().reset_index()
     saldo_acumulado.columns = ["data", "saldo"]
